@@ -138,6 +138,7 @@ accounting.addReport("Something went wrong.....");
 console.log(`calling getter ${accounting.mostRecentReport}`);
 
 accounting.addEmployee("Asim");
+accounting.addEmployee("Abdullah");
 accounting.addEmployee("Imam");
 
 // accounting.printReports();
