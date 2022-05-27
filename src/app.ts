@@ -1,153 +1,61 @@
-abstract class Department {
-	// you can't access static property or method into non static methods or properties
-	// and static methods or properties are accessible with this keyword because it detaches the property from this class
-	// if you want to run static property or method you have to use the class name then the property name
-	static fiscalYear = 2022;
+// Definition Interface
+// Diving into interface **A very important concept that needs to be covered**
+// in its simplest version an interface describes the structure of an object we can use to describe how our object should look like
+// An interface can't have an initializer
+// it allows us to define structure of an object
+// we can use this as a type to typecheck for objects that must have this structure
+// but we can replace interface with type just have to add the '=' sign this will be the same with no errors
+// why do we have an interface then ?
+// when you define an interface its super clear that you want to define the structure of object with that.
+// you more often see interfaces than you see custom types
+// an interface can be used as a contract a class can implement and a class then have to adhere to
+// Interfaces are often used to share functionality amongst different classes not regarding their concrete implementation
+// abstract class and interface is different because you have to overwrite method and also you have concrete implementation in the class
+// you have to setup the conditions defined by an interface
 
-	//base class
-	// private id: string;
-	// private name: string;
-	protected employees: string[] = []; //it is a private property now and it is only accessible inside the class
+// interface extends will force us to have both of the interface's values should be defined
+// in interfaces you can inherit from multiple interfaces but you cannot do that in classes
 
-	constructor(protected readonly id: string, public name: string) {
-		// this.name = n;
-		// console.log(this.fiscalYear); // not applicable because this cannot call static props
-		console.log(Department.fiscalYear);
-	}
+// you can also define optional properties in interfaces
 
-	static createEmployee(name: string) {
-		return { name: name };
-	}
-
-	// describe(this: Department) {
-	// 	console.log(`Department (${this.id}): ${this.name}`);
-	// }
-	// this is the normal method in the base class that is default
-	// but when you want to force the inherited classes to must define this method you can do it like this
-	abstract describe(this: Department): void;
-
-	addEmployee(employee: string) {
-		this.employees.push(employee);
-	}
-
-	printEmployeeInformation() {
-		console.log(this.employees.length);
-		console.log(this.employees);
-	}
+// type AddFn = (a: number, b: number) => number;
+interface AddFn {
+	(a: number, b: number): number;
 }
 
-class ITDepartment extends Department {
-	//became a sub class when it extends the other class
+let add: AddFn;
 
-	admins: string[];
-	constructor(id: string, admins: string[]) {
-		super(id, "IT");
-		this.admins = admins;
-	}
+add = (n1: number, n2: number) => {
+	return n1 + n2;
+};
 
-	describe() {
-		console.log("IT Department - ID: " + this.id);
-	}
+interface Named {
+	readonly name?: string;
+	outputName?: string; //optional property
+
+	// greet?(): void;
 }
 
-class AccountingDepartment extends Department {
-	private lastReport: string;
-	private static instance: AccountingDepartment;
-
-	get mostRecentReport() {
-		if (this.lastReport) return this.lastReport;
-
-		throw new Error("No Report found.");
-	}
-
-	set mostRecentReport(value: string) {
-		if (!value) throw new Error("Please a pass in a valid value");
-		this.addReport(value);
-	}
-
-	private constructor(id: string, private reports: string[]) {
-		super(id, "Accounting");
-		this.lastReport = reports[0];
-	}
-
-	static getInstance() {
-		// if(this.instance){ //this can be used too
-		if (AccountingDepartment.instance) {
-			// return this.instance
-			return AccountingDepartment.instance;
-		}
-		this.instance = new AccountingDepartment("d2", []);
-		return this.instance;
-	}
-
-	describe() {
-		console.log("Accounting Department - ID: ", this.id);
-	}
-
-	addEmployee(name: string) {
-		if (name === "Asim") return;
-		this.employees.push(name);
-	}
-
-	addReport(text: string) {
-		this.reports.push(text);
-		this.lastReport = text;
-	}
-
-	printReports() {
-		console.log(this.reports);
-	}
+interface Greetable extends Named {
+	greet(phrase: string): void;
 }
 
-const employee1 = Department.createEmployee("Asim");
-console.log(
-	`static employee: ${employee1}. fiscal year: ${Department.fiscalYear}`,
-);
+class Person implements Greetable, Named {
+	name?: string;
+	age = 24;
+	constructor(n?: string) {
+		if (n) this.name = n;
+	}
 
-// rename accounting to it to make more sense
-// const accounting = new ITDepartment("d1", ["Asim"]);
-const it = new ITDepartment("d1", ["Asim"]);
+	greet(phrase: string) {
+		if (this.name) console.log(phrase + " " + this.name);
+		else console.log("Hi!");
+	}
+}
+// we can use our interface as a type
+let user1: Person; //it means we must have to have the properties of Person interface in this object
 
-// accounting.addEmployee("Asim");
-// accounting.addEmployee("Imam");
-it.addEmployee("Asim");
-it.addEmployee("Imam");
+user1 = new Person();
 
-// this is only applicable if the property is not private
-// accounting.employees[2] = "Abdullah";
-
-// accounting.describe();
-// accounting.printEmployeeInformation();
-
-it.describe();
-it.name = "NEW NAME";
-it.printEmployeeInformation();
-
-console.log("it department: ", it);
-
-// this is ok if class doesn't have a private constructor
-// const accounting = new AccountingDepartment("d2", []);
-const accounting = AccountingDepartment.getInstance();
-const accounting2 = AccountingDepartment.getInstance();
-
-console.log("for private constructor 'accounting'", accounting, accounting2);
-
-accounting.mostRecentReport = "Year End Report";
-
-accounting.addReport("Something went wrong.....");
-console.log(`calling getter ${accounting.mostRecentReport}`);
-
-accounting.addEmployee("Asim");
-accounting.addEmployee("Abdullah");
-accounting.addEmployee("Imam");
-
-// accounting.printReports();
-// accounting.printEmployeeInformation();
-accounting.describe();
-
-//this is a new object now and it does not have the scope of Department class/object so describe() will not return anything
-// const accountingCopy = { describe: accounting.describe };
-// instead we will add a new property in that object which we are calling to work this properly like that
-// const accountingCopy = { name: "Asim", describe: accounting.describe };
-//
-// accountingCopy.describe();
+user1.greet("Hi there - I am");
+console.log(user1);
